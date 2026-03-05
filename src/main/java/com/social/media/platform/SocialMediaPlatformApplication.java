@@ -10,4 +10,5 @@ public class SocialMediaPlatformApplication {
 		SpringApplication.run(SocialMediaPlatformApplication.class, args);
 	}
 
+
 }
