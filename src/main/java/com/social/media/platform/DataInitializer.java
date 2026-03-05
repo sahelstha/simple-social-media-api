@@ -26,10 +26,10 @@ public class DataInitializer {
         this.postRepo = postRepo;
     }
 
-
     @Bean
-    public CommandLineRunner initializeData(){
+    public CommandLineRunner initializeData() {
         return (args -> {
+            // Create and save users
             SocialUser user1 = new SocialUser();
             SocialUser user2 = new SocialUser();
             SocialUser user3 = new SocialUser();
@@ -38,27 +38,30 @@ public class DataInitializer {
             socialUserRepo.save(user2);
             socialUserRepo.save(user3);
 
+            // Create groups and assign users to groups
             SocialGroup group1 = new SocialGroup();
             SocialGroup group2 = new SocialGroup();
 
             group1.getSocialUsers().add(user1);
             group1.getSocialUsers().add(user2);
-            
-            group2.getSocialUsers().add(user2);
-            group2.getSocialUsers().add(user3);
+
+            group2.getSocialUsers().add(user2); // ✅ user2 in both groups
+            group2.getSocialUsers().add(user3); // ✅ user3 in group2
 
             groupRepo.save(group1);
             groupRepo.save(group2);
 
+            // Assign groups to users (keep both sides of the relationship in sync)
             user1.getGroups().add(group1);
             user2.getGroups().add(group1);
-            user1.getGroups().add(group2);
-            user2.getGroups().add(group2);
+            user2.getGroups().add(group2); // ✅ user2 in both groups
+            user3.getGroups().add(group2); // ✅ fixed: was user1, should be user3
 
             socialUserRepo.save(user1);
             socialUserRepo.save(user2);
-            socialUserRepo.save(user3);
+            socialUserRepo.save(user3); // ✅ fixed: user3 was missing
 
+            // Create posts and link to users
             Post post1 = new Post();
             Post post2 = new Post();
             Post post3 = new Post();
@@ -71,17 +74,22 @@ public class DataInitializer {
             postRepo.save(post2);
             postRepo.save(post3);
 
+            // Create profiles and link to users
             SocialProfile profile1 = new SocialProfile();
             SocialProfile profile2 = new SocialProfile();
             SocialProfile profile3 = new SocialProfile();
 
-            profile1.setUser(user1);
-            profile2.setUser(user2);
-            profile3.setUser(user3);
+            user1.setSocialProfile(profile1);
+            user2.setSocialProfile(profile2);
+            user3.setSocialProfile(profile3);
 
             socialProfileRepo.save(profile1);
             socialProfileRepo.save(profile2);
             socialProfileRepo.save(profile3);
+
+//            Fetch Types
+            System.out.println("FETCHING SOCIAL USER");
+            socialUserRepo.findById(1L);
         });
     }
 }

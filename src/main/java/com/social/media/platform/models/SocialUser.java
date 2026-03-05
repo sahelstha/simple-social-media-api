@@ -1,29 +1,26 @@
 package com.social.media.platform.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.*;
 
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 public class SocialUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "user")
-//    @JoinColumn(name = "social_profile_id")
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
     private SocialProfile socialProfile;
 
-    @OneToMany(mappedBy = "socialUser")
+    @OneToMany(mappedBy = "socialUser", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Post> posts = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_group",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -34,5 +31,13 @@ public class SocialUser {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public void setSocialProfile(SocialProfile socialProfile) {
+
+        if (socialProfile != null) {
+            socialProfile.setUser(this); // Tell the profile about the user
+        }
+        this.socialProfile = socialProfile; // Tell the user about the profile
     }
 }
